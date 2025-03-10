@@ -252,9 +252,9 @@ def process_uploaded_file(file, model_id):
 
 if "api_key" not in st.session_state:
     st.session_state["api_key"] = os.getenv("OPENROUTER_API_KEY")
+if not st.session_state["api_key"]:
+    st.sidebar.warning("Please provide an OpenRouter API key to use the chat.")
 
-
-st.caption("🩺 Chat with the AI")
 # Initialize the chat
 if "document_content" not in st.session_state:
     st.session_state["document_content"] = {}
@@ -269,9 +269,7 @@ with st.sidebar:
         st.session_state["document_content"] = {}
         st.session_state["pdf_reader"] = PdfReader
 
-    if st.sidebar.checkbox("Adjust settings"):
-        st.sidebar.markdown("------")
-        st.sidebar.markdown("#### ⚙️ Settings")
+    with st.sidebar.expander("#### ⚙️ Settings"):
         api_key = st.text_input("OpenRouter API key", st.session_state["api_key"])
         st.session_state["api_key"] = api_key
         model_id = st.selectbox("Model", [
@@ -291,6 +289,7 @@ with st.sidebar:
 
         ])
         system_prompt = st.text_area("System prompt", SYSTEM_PROMPT)
+        st.session_state["messages_history"][0]["content"] = system_prompt
         with st.sidebar.expander("Chat history"):
             show_chat_messages(st.session_state["messages_history"])
         with st.sidebar.expander("Uploaded documents"):
@@ -298,14 +297,11 @@ with st.sidebar:
                 st.write(doc_name)
         st.sidebar.markdown("------")
 
-    else:
-        model_id = "openai/gpt-4o"
-        system_prompt = SYSTEM_PROMPT
-
     documents = st.file_uploader("Upload documents", type=["pdf", "png", "txt", "jpg"], accept_multiple_files=False)
     if documents:
         process_uploaded_file(documents, model_id)
 
+st.caption(f"🩺 Chat with the AI. Powered by {model_id}")
 for msg in st.session_state.messages_history[1:]:
     st.chat_message(msg["role"]).write(msg["content"])
 
