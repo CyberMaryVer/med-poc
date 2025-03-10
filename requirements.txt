@@ -1,0 +1,10 @@
+requests
+Pillow
+streamlit
+langchain
+langchain-openai
+loguru
+pydantic
+PyPDF2
+pdf2image
+typing-extensions
